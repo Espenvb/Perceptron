@@ -95,7 +95,15 @@ class Perceptron:
         self.bias -= np.sum(update, axis=0)
         return self.loss_function.function(y, self.prev_output)
     
-    def train(self, x, y):  
+    def train(self, x, y): 
+        '''
+        Inputs:
+            x - input data, 1D or 2D NumPy array
+            
+            y - gold value 1D NumPy array
+            
+            Trains the preceptron using the input data and gold values for n epochs,specified in the constructor.
+        ''' 
         if not isinstance(x, np.ndarray) or not isinstance(y, np.ndarray):
             raise TypeError("Input must be a NumPy array.")
         if x.ndim > 2 or x.ndim == 0:
