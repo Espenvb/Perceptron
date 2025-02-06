@@ -95,12 +95,7 @@ class Perceptron:
         self.bias -= np.sum(update, axis=0)
         return self.loss_function.function(y, self.prev_output)
     
-    def predict(self, x):
-        s = np.matmul(self.weights, x) + self.bias
-        return self.activation(s)
-            
-    
-    def train(self, x, y):     
+    def train(self, x, y):  
         if not isinstance(x, np.ndarray) or not isinstance(y, np.ndarray):
             raise TypeError("Input must be a NumPy array.")
         if x.ndim > 2 or x.ndim == 0:
@@ -141,7 +136,8 @@ class Perceptron:
                 self.backward(x_batch, y_batch)
             print("Epoch ", e, " Done.")
             print("Epoch Loss: ", self.loss_function.function(y_shuffled, self.forward(x_shuffled)))
-            print("-------------------------------------------------")                
+            print("-------------------------------------------------")   
+            
     def test(self, x, y):
         z = self.forward(x)
         loss = self.loss_function.function(z, y)
