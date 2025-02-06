@@ -1,22 +1,27 @@
 import numpy as np
-
-class Activation_Function:
-    def __init__(self):
-        self.name = "Activation Function Base Class"
-        
-    def function(x):
-        raise NotImplementedError
     
-    def derivative(x):
-        raise 
-    
-class ReLu(Activation_Function):
+class ReLu():
     def __init__(self):
         self.name = "ReLu Activation Function"
-    @staticmethod
     def function(x):
         return np.maximum(x, 0)
     
-    @staticmethod
     def derivative(x):
         return np.where(x>0, 1, 0)
+    
+class Heaviside():
+    def __init__(self):
+        super().__init__()
+        self.name = "Heaviside"
+                
+    def function(y):
+        output = np.array([])
+        for i in y:
+            if i > 0:
+                output = np.append(output, 1)
+            else:
+                output = np.append(output, 0)
+        return output
+    
+    def derivative(x):
+        return 1

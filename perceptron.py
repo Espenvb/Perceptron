@@ -2,6 +2,7 @@ import numpy as np
 import loss_functions
 import activation_functions
 import regularization_functions
+import random
 
 class Perceptron:
     def __init__(self, 
@@ -37,19 +38,19 @@ class Perceptron:
                         if callable(getattr(regularization_functions, name, None))}
         if regularization not in valid_regularization_functions and regularization is not None:
             raise ValueError(f"Invalid value: {regularization}. Allowed values are {valid_regularization_functions}")
-        self.regulartization = regularization
+        self.regulartization = getattr(regularization_functions, regularization)
         
         valid_loss_functions = {name for name in dir(loss_functions)
                         if isinstance(getattr(loss_functions, name, None), type)}
-        if 'MSE' not in valid_loss_functions:
+        if loss_function not in valid_loss_functions:
             raise ValueError(f"Invalid Value: {loss_function}. Allowed values are {valid_loss_functions}")
-        self.loss_function = getattr(loss_functions, "MSE")
+        self.loss_function = getattr(loss_functions, loss_function)
         
         valid_activation_functions = {name for name in dir(activation_functions)
                         if isinstance(getattr(activation_functions, name, None), type)}
-        if 'MSE' not in valid_loss_functions:
+        if activation not in valid_activation_functions:
             raise ValueError(f"Invalid Value: {activation}. Allowed values are {valid_activation_functions}")
-        self.activation = getattr(loss_functions, "MSE")
+        self.activation = getattr(activation_functions, activation)
         
         self.learning_rate = learning_rate
         self.batch_size = batch_size
@@ -67,15 +68,12 @@ class Perceptron:
         Inputs:
         
         x - input data
-        
-        Does only suport one traning example at the time 
-        
-        Need to implement batching later
         '''
         s = np.matmul(self.weights, np.transpose(x)) + self.bias
         self.prev_sum = s
         z = self.activation.function(s)  
         self.prev_output = z
+        print("Z: ", z)
         return z
     
     def backward(self, x, y):
@@ -89,8 +87,13 @@ class Perceptron:
             Updates the weights of the preceptron using the backproagation algorithm with gradient decent,
             and returns the loss.
         '''
-        error = self.loss_function.derivative(y, self.prev_output)   
-        update = self.learning_rate*error  
+        if self.regulartization == None:
+            error = self.loss_function.derivative(y, self.prev_output)   
+        else:
+            error = self.loss_function.derivative(y, self.prev_output) + self.regulartization(self.weights, self.l)
+        update = self.learning_rate*error 
+        print("Update: ", update)
+        print("Error: ", error) 
         self.weights -= update*np.sum(x, axis=0)
         self.bias -= np.sum(update, axis=0)
         return self.loss_function.function(y, self.prev_output)
@@ -101,24 +104,58 @@ class Perceptron:
             
     
     def train(self, x, y):     
-        if not isinstance(x, np.ndarray):
+        if not isinstance(x, np.ndarray) or not isinstance(y, np.ndarray):
             raise TypeError("Input must be a NumPy array.")
         if x.ndim > 2 or x.ndim == 0:
-            raise TypeError("Input must be 1D or 2D data.")
+            raise TypeError("X must be 1D or 2D data.")
+        if y.ndim > 1 or x.ndim == 0:
+            raise TypeError("Y must be 1D data.")
         
         if x.ndim == 1:
             self.input_size = x.shape[0]
+            self.training_size = 1
         elif x.ndim == 2:
             self.input_size = x.shape[1]
+            self.training_size = x.shape[0]
+            if self.training_size != y.shape[0]:
+                raise ValueError("X and Y must have compatible sizes.")
+            
+        print("Initialization Done.")
+        print(f"    -Input Size: {self.input_size}")
+        print(f"    -Training Samples: {self.training_size}")
         
-        for i in range (0, data_length, self.batch_size):
-            end_index = min(i + self.batch_size, data_length)
-            x_batch = x[i:end_index]
-            y_batch = y[i:end_index]
-            self.forward(x_batch)
-            print("Loss: ", self.backward(x_batch, y_batch))
-            print("W", self.weights)
-            print("b", self.bias)
+        self.weights = np.random.uniform(0, 1, self.input_size)
+        self.bias = random.uniform(0, 1) 
+        
+        for e in range (0, self.epochs):
+            training_set = np.column_stack((x, y))
+            
+            np.random.shuffle(training_set)
+            
+            x_shuffled = training_set[:,:-1]
+            y_shuffled = training_set[:,-1]
+
+            for i in range (0, self.training_size, self.batch_size):        
+                end_index = min(i + self.batch_size, self.training_size)
+                x_batch = x_shuffled[i:end_index]
+                y_batch = y_shuffled[i:end_index]
+                
+                
+                z = self.forward(x_batch)
+                print("True", y_shuffled)
+                print("Loss: ", self.backward(x_batch, y_batch))
+                print("W", self.weights)
+                print("b", self.bias)
+                
+    def test(self, x, y):
+        z = self.forward(x)
+        loss = self.loss_function.function(z, y)
+        print("Total Loss: ", loss)
+                
+        
+
+
+
     
         
         
