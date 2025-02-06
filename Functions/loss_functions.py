@@ -17,7 +17,6 @@ class SE():
         self.name = "MSE"
                 
     def function(y, y_pred):
-        print(y-y_pred)
         return np.sum((y - y_pred)**2)
        
     def derivative(y, y_pred):

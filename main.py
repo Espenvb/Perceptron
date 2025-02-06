@@ -25,7 +25,7 @@ model.test(x_test, y_test)
 weights = model.weights
 bias = model.bias
 
-x = np.linspace(-5, 5, 100)
+x = np.linspace(-4, 4, 100)
 y = (-weights[0]*x - bias)/weights[1]
 plt.plot(x, y)
 plt.scatter(class_1[:,0], class_1[:,1], c='r')

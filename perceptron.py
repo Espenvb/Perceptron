@@ -1,7 +1,7 @@
 import numpy as np
-import loss_functions
-import activation_functions
-import regularization_functions
+import Functions.loss_functions as loss_functions
+import Functions.activation_functions as activation_functions
+import Functions.regularization_functions as regularization_functions
 import random
 
 class Perceptron:
@@ -73,7 +73,6 @@ class Perceptron:
         self.prev_sum = s
         z = self.activation.function(s)  
         self.prev_output = z
-        print("Z: ", z)
         return z
     
     def backward(self, x, y):
@@ -92,8 +91,6 @@ class Perceptron:
         else:
             error = self.loss_function.derivative(y, self.prev_output) + self.regulartization(self.weights, self.l)
         update = self.learning_rate*error 
-        print("Update: ", update)
-        print("Error: ", error) 
         self.weights -= update*np.sum(x, axis=0)
         self.bias -= np.sum(update, axis=0)
         return self.loss_function.function(y, self.prev_output)
@@ -140,13 +137,11 @@ class Perceptron:
                 x_batch = x_shuffled[i:end_index]
                 y_batch = y_shuffled[i:end_index]
                 
-                
-                z = self.forward(x_batch)
-                print("True", y_shuffled)
-                print("Loss: ", self.backward(x_batch, y_batch))
-                print("W", self.weights)
-                print("b", self.bias)
-                
+                self.forward(x_batch)
+                self.backward(x_batch, y_batch)
+            print("Epoch ", e, " Done.")
+            print("Epoch Loss: ", self.loss_function.function(y_shuffled, self.forward(x_shuffled)))
+            print("-------------------------------------------------")                
     def test(self, x, y):
         z = self.forward(x)
         loss = self.loss_function.function(z, y)
